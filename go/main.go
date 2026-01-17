@@ -10,14 +10,30 @@ import (
 	"syscall"
 	"time"
 
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
 	"mchack13.com/go/handlers"
 	"mchack13.com/go/middleware"
 )
 
 func main() {
+
+	pythonPort := os.Getenv("PYTHON_SERVICE_PORT")
+	if pythonPort == "" {
+		pythonPort = "localhost:50051"
+	}
+
 	// Logger set up
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
+
+	// Set up gRPC connection to python
+	conn, err := grpc.NewClient(pythonPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		logger.Error("did not connect: %v", err)
+	}
+	defer conn.Close()
 
 	// 2. Setup Configuration
 	port := os.Getenv("PORT")
@@ -25,7 +41,10 @@ func main() {
 		port = "8080"
 	}
 
+	// http server
 	mux := http.NewServeMux()
+
+	//
 
 	// Use handlers from the 'handlers' package
 	mux.HandleFunc("GET /health", handlers.Health)
