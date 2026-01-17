@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package video;
+option go_package = "./pb";
+
+service VideoProcessor {
+  // Bidirectional stream: Stream frames in, stream results out
+  rpc ProcessVideo(stream VideoFrame) returns (stream AnalysisResult);
+}
+
+message VideoFrame {
+  bytes content = 1;      // The raw image bytes (JPEG/PNG)
+  int64 timestamp = 2;    // To sync results back to the correct frame
+}
+
+message AnalysisResult {
+  string prediction = 1;  // e.g., "Hand Open", "Face Detected"
+  float confidence = 2;
+  int64 timestamp = 3;    // Return the timestamp so Frontend knows which frame this is for
+}
