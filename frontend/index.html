@@ -12,48 +12,45 @@
         height: 100%;
         font-family: Arial, sans-serif;
         overflow: hidden;
-        background: transparent;
+        background: #1a1a1a;
       }
 
       body {
-        -webkit-app-region: no-drag;
-        pointer-events: none;
-      }
-
-      button,
-      .slide-container,
-      .main-btn,
-      .action-btns {
         pointer-events: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
       }
 
       .slide-container {
         background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
         position: fixed;
-        bottom: 120px;
+        bottom: 80px;
         right: 20px;
         width: 300px;
         max-width: 90%;
-        height: 250px;
+        height: 280px;
         backdrop-filter: blur(10px);
         border-radius: 15px;
-        padding: 20px;
         margin-bottom: 20px;
         overflow: hidden;
         z-index: 9998;
         display: flex;
         flex-direction: column;
+        backdrop-filter: blur(5px);
       }
 
       .slide {
         position: absolute;
-        width: 100%;
+        width: calc(100% - 40px);
         height: 100%;
+        left: 20px;
         color: white;
         display: flex;
         flex-direction: column;
-        align-items: center;
         justify-content: center;
+        align-items: center;
         opacity: 0;
         transform: translateX(100%);
         transition: all 0.5s ease;
@@ -70,20 +67,50 @@
         transform: translateX(-100%);
       }
 
-      h1 {
-        margin-bottom: 10px;
-        font-size: 1.5rem;
+      h2,
+      h3 {
+        margin-top: 10px;
+        margin-bottom: 15px;
       }
 
       p {
-        margin-bottom: 20px;
+        margin: 0px;
         font-size: 0.9rem;
+      }
+
+      span {
+        font-size: 0.85rem;
+      }
+
+      .gesture-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 8px;
+      }
+
+      .gesture-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 6px;
+        backdrop-filter: blur(5px);
+        transition: all 0.3s ease;
+        text-align: center;
+      }
+
+      .gesture-item img {
+        height: 52px;
+        object-fit: contain;
+        flex-shrink: 0;
       }
 
       .controls {
         position: absolute;
         bottom: 10px;
-        width: 100%;
+        width: calc(100% - 40px);
+        left: 20px;
         display: flex;
         justify-content: space-between;
       }
@@ -105,15 +132,15 @@
 
       .main-btn {
         position: fixed;
-        bottom: 60px;
+        bottom: 30px;
         right: 20px;
-        background-color: #42c4a1;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
         color: white;
         border: none;
         border-radius: 50%;
         width: 60px;
         height: 60px;
-        font-size: 30px;
+        font-size: 45px;
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -127,7 +154,7 @@
         right: 20px;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 20px;
         opacity: 0;
         pointer-events: none;
         transition: all 0.3s ease;
@@ -144,37 +171,98 @@
         height: 50px;
         border-radius: 50%;
         border: none;
-        background-color: #2196f3;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
         color: white;
         cursor: pointer;
         font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .action-btns button img {
+        display: block;
+        width: 60%;
+        height: 60%;
+        object-fit: contain;
+      }
+      .video-feed {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1;
       }
     </style>
   </head>
 
   <body>
+    <div
+      class="logo"
+      style="
+        position: fixed;
+        top: 10px;
+        height: 60px;
+        z-index: 10000;
+        padding: 15px 20px;
+      "
+    >
+      <img src="./icons/jarv.png" alt="" />
+    </div>
     <img
+      class="video-feed"
       src="http://localhost:5174/video_feed"
-      style="width: 100%; height: 100%; object-fit: cover"
+      alt="Video Feed"
+      style="
+        width: 600px;
+        height: 450px;
+        top: 130px;
+        border-radius: 20px;
+        position: fixed;
+      "
     />
     <div class="slide-container" id="slide-container">
       <div class="slide active">
-        <h1>Welcome to HandlR</h1>
-        <p>Start your very own<br />hands-free browser control experience</p>
+        <h2>Meet Jarvis</h2>
+        <p>Your personal hands-free browser assistant</p>
+        <div class="gesture-container">
+          <div class="gesture-item">
+            <img src="./icons/click.png" alt="Click" />
+            <span>Pinch to Click</span>
+          </div>
+          <div class="gesture-item">
+            <img src="./icons/up_down.png" alt="Scroll" />
+            <span>Hold & Move to Scroll</span>
+          </div>
+        </div>
       </div>
 
+      <!-- Zoom in, Zoom out -->
       <div class="slide">
-        <h1>Features</h1>
-        <p>Control your browser with gestures.<br />No mouse needed!</p>
+        <h3>To Zoom in and Zoom out</h3>
+        <div class="gesture-item">
+          <img src="./icons/zoom.png" alt="Click" />
+          <span
+            >Pinch fingers on both hands.<br />
+            And move your hands inwards/outwards.</span
+          >
+        </div>
       </div>
 
+      <!-- Flip through windows -->
       <div class="slide">
-        <h1>Get Started</h1>
-        <p>Click “Next” to begin your hands-free journey.</p>
+        <h3>Get across different pages</h3>
+        <div class="gesture-item">
+          <img src="./icons/slide.png" alt="Click" />
+          <span
+            >Open your palm towards the camera<br />
+            and swipe left and right.</span
+          >
+        </div>
       </div>
 
       <div class="controls">
-        <button id="skipBtn">Skip Intro</button>
+        <button id="prevBtn">Previous</button>
         <button id="nextBtn">Next</button>
       </div>
     </div>
@@ -183,9 +271,13 @@
     <button class="main-btn" id="mainBtn">+</button>
 
     <div class="action-btns" id="actionBtns">
-      <button id="mngBtn">manage</button>
-      <button id="infoBtn">info</button>
-      <button id="exitBtn" style="background-color: #f44336">exit</button>
+      <!-- <button id="mngBtn">manage</button> -->
+      <button id="infoBtn">
+        <img src="./icons/info.png" alt="Info" />
+      </button>
+      <button id="exitBtn">
+        <img src="./icons/exit.png" alt="Exit" />
+      </button>
     </div>
 
     <script src="jarvis.js"></script>

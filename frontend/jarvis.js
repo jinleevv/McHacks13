@@ -1,45 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
   const { ipcRenderer } = require("electron");
 
-  // Only the lower-right UI should capture clicks; elsewhere clicks pass through.
-  const interactiveEls = [
-    document.getElementById("slide-container"),
-    document.getElementById("mainBtn"),
-    document.getElementById("actionBtns"),
-  ];
-
-  function setIgnore(ignore) {
-    ipcRenderer.send("set-ignore-mouse-events", ignore);
-  }
-
-  function bindHover(el) {
-    if (!el) return;
-    el.addEventListener("pointerenter", () => setIgnore(false));
-    el.addEventListener("pointerleave", () => setIgnore(true));
-  }
-
-  interactiveEls.forEach(bindHover);
-
-  // Start with background-clickable by default
-  setIgnore(true);
-
-  // Re-enforce alwaysOnTop after any click outside UI
-  document.addEventListener(
-    "click",
-    (e) => {
-      const isUIElement = interactiveEls.some(
-        (el) => el && el.contains(e.target),
-      );
-      if (!isUIElement) {
-        ipcRenderer.send("restore-on-top");
-      }
-    },
-    true,
-  );
-
   const slides = document.querySelectorAll(".slide");
   const nextBtn = document.getElementById("nextBtn");
-  const skipBtn = document.getElementById("skipBtn");
+  const prevBtn = document.getElementById("prevBtn");
 
   let currentSlide = 0;
 
@@ -56,14 +20,19 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function nextSlide() {
-    currentSlide++;
-    if (currentSlide >= slides.length) {
-      currentSlide = slides.length - 1;
+    if (currentSlide < slides.length - 1) {
+      currentSlide++;
       updateButtonForLastSlide();
-      return;
+      showSlide(currentSlide);
     }
-    updateButtonForLastSlide();
-    showSlide(currentSlide);
+  }
+
+  function previousSlide() {
+    if (currentSlide > 0) {
+      currentSlide--;
+      updateButtonForLastSlide();
+      showSlide(currentSlide);
+    }
   }
 
   function updateButtonForLastSlide() {
@@ -78,7 +47,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const introContainer = document.getElementById("slide-container");
     if (introContainer) {
       introContainer.style.display = "none";
-
+      // Reset button text when intro closes
+      nextBtn.textContent = "Next";
+      currentSlide = 0;
       console.log("Intro closed, Jarvis remains active.");
     }
   }
@@ -91,6 +62,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (introContainer) {
       introContainer.style.display = "flex";
     }
+    // Close action buttons when opening intro
+    if (menuOpen) {
+      menuOpen = false;
+      actionBtns.classList.remove("show");
+      mainBtn.textContent = "+";
+    }
   }
 
   nextBtn?.addEventListener("click", () => {
@@ -100,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
       nextSlide();
     }
   });
-  skipBtn?.addEventListener("click", closeIntro);
+  prevBtn?.addEventListener("click", previousSlide);
 
   const mainBtn = document.getElementById("mainBtn");
   const actionBtns = document.getElementById("actionBtns");
@@ -113,6 +90,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (menuOpen) {
       actionBtns.classList.add("show");
       mainBtn.textContent = "×";
+      // Close intro when opening action buttons
+      closeIntro();
     } else {
       actionBtns.classList.remove("show");
       mainBtn.textContent = "+";
@@ -144,7 +123,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   infoBtn?.addEventListener("click", () => {
     actions.info();
-    toggleMenu();
   });
 
   exitBtn?.addEventListener("click", () => {
@@ -162,9 +140,9 @@ document.addEventListener("DOMContentLoaded", () => {
         closeIntro();
         break;
 
-      case "c":
-        actions.create();
-        break;
+      // case "c":
+      //   actions.create();
+      //   break;
 
       // case "m":
       //   actions.manage();
