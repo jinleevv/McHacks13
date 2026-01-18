@@ -29,6 +29,7 @@ class MouseController:
         self.last_scroll_y = 0
         self.count = 0
 
+        self.scroll_anchor = None
         self.zoom_anchor = None
 
     def move_cursor(self, x, y):
@@ -54,16 +55,42 @@ class MouseController:
         pyautogui.click(_pause=False)
 
     def perform_scroll(self, current_y):
-        if self.prev_y is None:
-            self.prev_y = current_y
-            return
+        """
+        Anchor-Based Scrolling (Virtual Notches).
+        - Establishes a vertical start point (anchor) when you start the pinch-hold.
+        - Triggers a scroll event only when hand moves a 'step' away from anchor.
+        - Updates the anchor to allow for continuous, rhythmic scrolling.
+        """
+        # 1. ESTABLISH ANCHOR
+        if self.scroll_anchor is None:
+            self.scroll_anchor = current_y
+            return None
 
-        delta = self.prev_y - current_y
+        # 2. CALCULATE DEVIATION
+        # current_y increases as hand moves DOWN, but standard scroll logic 
+        # usually treats "upward movement" as scrolling "up".
+        diff = self.scroll_anchor - current_y
 
-        if abs(delta) > 5:  # pixels, not normalized
-            scroll_clicks = int(delta / 8)
-            pyautogui.scroll(scroll_clicks)
-            self.prev_y = current_y
+        # 3. DEFINE STEP SIZE (Sensitivity)
+        # 15-25 pixels is usually a good range for CAM_H = 480.
+        # Lower = Faster scrolling. Higher = More stability.
+        SCROLL_STEP = 20 
+
+        if diff > SCROLL_STEP:
+            # Hand moved UP -> Scroll UP
+            pyautogui.scroll(1) 
+            # Move the anchor up to meet the current position
+            self.scroll_anchor -= SCROLL_STEP
+            return "Scroll Up"
+
+        elif diff < -SCROLL_STEP:
+            # Hand moved DOWN -> Scroll DOWN
+            pyautogui.scroll(-1)
+            # Move the anchor down to meet the current position
+            self.scroll_anchor += SCROLL_STEP
+            return "Scroll Down"
+
+        return None
 
 
     def perform_zoom(self, current_dist):

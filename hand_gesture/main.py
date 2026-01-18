@@ -73,9 +73,9 @@ def run_gesture_logic():
         h, w, _ = frame.shape
 
         if landmarks:
-
+            hand1 = landmarks[0]
             if len(landmarks) == 2:
-                hand1 = landmarks[0]
+                
                 hand2 = landmarks[1]
 
                 # Check if BOTH hands are pinching
@@ -107,16 +107,16 @@ def run_gesture_logic():
                 cv2.rectangle(frame, (0, 0), (w, 40), (0, 0, 0), -1)
                 cv2.putText(frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
-                landmarks = landmarks[0]
-                fingers_up = engine.count_fingers_up(landmarks)
+                
+                fingers_up = engine.count_fingers_up(hand1)
 
                 # Key points
-                index_x = landmarks[8].x * CAM_W
-                index_y = landmarks[8].y * CAM_W  # Note: check if this should be CAM_H or CAM_W (usually y * H)
+                index_x = hand1[8].x * CAM_W
+                index_y = hand1[8].y * CAM_W  # Note: check if this should be CAM_H or CAM_W (usually y * H)
 
-                thumb_tip = landmarks[4]
-                index_tip = landmarks[8]
-                middle_tip = landmarks[12]
+                thumb_tip = hand1[4]
+                index_tip = hand1[8]
+                middle_tip = hand1[12]
 
                 # --- Cursor Mode ---
                 if fingers_up <= 1:
@@ -130,7 +130,7 @@ def run_gesture_logic():
                         pinch_duration = time.time() - mouse.pinch_start_time
 
                         # HOLD → Scroll
-                        if pinch_duration > 0.5:
+                        if pinch_duration > 0.2:
                             status_text = "Click & Hold: Scrolling"
 
                             current_y = index_tip.y * CAM_H  # 🔥 FIXED
@@ -150,16 +150,17 @@ def run_gesture_logic():
                             pinch_duration = time.time() - mouse.pinch_start_time
 
                             # Quick pinch → click
-                            if pinch_duration <= 0.5:
+                            if pinch_duration <= 0.2:
                                 mouse.left_click()
                                 status_text = "Quick Click!"
 
                             mouse.pinch_start_time = 0
                             mouse.prev_y = None  # reset scroll memory
+                            mouse.scroll_anchor = None
                 # --- Swipe Mode ---
                 elif fingers_up >= 3:
-                    hand_x = landmarks[0].x * CAM_W
-                    hand_y = landmarks[0].y * CAM_H
+                    hand_x = hand1[0].x * CAM_W
+                    hand_y = hand1[0].y * CAM_H
                     action = mouse.perform_swipe(hand_x, hand_y)
                     if action:
                         status_text = action
@@ -167,7 +168,7 @@ def run_gesture_logic():
                         status_text = "Swipe Mode"
                 
                 # --- Visualization ---
-                for lm in landmarks:
+                for lm in hand1:
                     cv2.circle(frame, (int(lm.x * w), int(lm.y * h)), 5, (255, 0, 0), -1)
 
         # 4. Draw UI
