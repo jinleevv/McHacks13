@@ -141,7 +141,7 @@ def run_gesture_logic():
                             pinch_duration = time.time() - mouse.pinch_start_time
 
                             # min click time threshold
-                            # if you make it too small may click accidentally
+                            # if you make it too small may click accidentally due to error in tracking
                             if pinch_duration <= 0.2:
                                 mouse.left_click()
                                 status_text = "Click"
