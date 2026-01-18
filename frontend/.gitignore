@@ -1,0 +1,48 @@
+# Dependencies
+/node_modules
+.npm
+.yarn-integrity
+.yarn/install-state.gz
+
+# Production/Build artifacts
+/dist
+/build
+out/ # Sometimes used by IDEs or specific build tools
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS-specific files
+.DS_Store # macOS
+Thumbs.db # Windows
+ehthumbs.db # Windows
+
+# IDE/Editor-specific files
+.idea/ # JetBrains IDEs
+.vs/ # Visual Studio
+.vscode/ # VS Code (consider what you want to share with the team)
+*.suo
+*.iws
+*.user
+*.prj
+
+# Compiled files
+*.pyc # Python
+*.o # C/C++
+*.swp # Vim swap files
+
+# Optional: compiled files if you use TypeScript and don't check in the output
+ts-gen
+
+# Output of 'npm pack'
+*.tgz
