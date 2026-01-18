@@ -113,18 +113,11 @@ def run_gesture_logic():
                 if engine.latest_result and engine.latest_result.gestures:
                     # Get the top gesture (highest score)
                     top_gesture = engine.latest_result.gestures[0][0].category_name
-<<<<<<< Updated upstream
-                    if top_gesture == "ILoveYou":
-                        voice_assistant.run()
-                        engine.latest_result = None
-                    elif top_gesture == "Thumb_Down":
-                        os._exit(0)
-=======
-                    
                     # if top_gesture == "ILoveYou":
                     #     voice_assistant.run()
-                    #     pass
->>>>>>> Stashed changes
+                    #     engine.latest_result = None
+                    # elif top_gesture == "Thumb_Down":
+                    #     os._exit(0)
                 fingers_up = engine.count_fingers_up(hand1)
 
                 # Key points
