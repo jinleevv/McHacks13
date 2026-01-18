@@ -167,6 +167,20 @@ def generate_frames():
 def video_feed():
     return Response(generate_frames(), mimetype="multipart/x-mixed-replace; boundary=frame")
 
+@app.route("/")
+def index():
+    return """
+    <html>
+        <head><title>Gesture Test</title></head>
+        <body>
+            <h1>Gesture Control Backend is Running!</h1>
+            <p>If you see this text, the Flask server is up.</p>
+            <p>Below is the raw video feed that Electron will see:</p>
+            <img src="/video_feed" width="640" height="480" style="border: 2px solid black;">
+        </body>
+    </html>
+    """
+
 
 if __name__ == "__main__":
     # Start the Gesture Logic in a separate daemon thread
