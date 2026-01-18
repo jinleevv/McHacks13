@@ -122,10 +122,10 @@ document.addEventListener("DOMContentLoaded", () => {
   mainBtn?.addEventListener("click", toggleMenu);
 
   const actions = {
-    manage: () => {
-      console.log("Manage mode activated");
-      openIntro();
-    },
+    // manage: () => {
+    //   console.log("Manage mode activated");
+    //   openIntro();
+    // },
 
     info: () => {
       console.log("Info panel opened");
@@ -133,14 +133,14 @@ document.addEventListener("DOMContentLoaded", () => {
     },
   };
 
-  const mngBtn = document.getElementById("mngBtn");
+  // const mngBtn = document.getElementById("mngBtn");
   const infoBtn = document.getElementById("infoBtn");
   const exitBtn = document.getElementById("exitBtn");
 
-  mngBtn?.addEventListener("click", () => {
-    actions.manage();
-    toggleMenu();
-  });
+  // mngBtn?.addEventListener("click", () => {
+  //   actions.manage();
+  //   toggleMenu();
+  // });
 
   infoBtn?.addEventListener("click", () => {
     actions.info();
@@ -166,9 +166,9 @@ document.addEventListener("DOMContentLoaded", () => {
         actions.create();
         break;
 
-      case "m":
-        actions.manage();
-        break;
+      // case "m":
+      //   actions.manage();
+      //   break;
 
       case "i":
         actions.info();

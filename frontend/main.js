@@ -9,6 +9,12 @@ function createWindow() {
     title: "Smart Gesture Camera",
     transparent: true,
     frame: false,
+    // Extra config for MacOS
+    hasShadow: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
     fullscreen: true,
     alwaysOnTop: true,
     backgroundColor: "#00000000", // Fully transparent
@@ -21,7 +27,13 @@ function createWindow() {
 
   // macOS specific - ensure transparency works
   if (process.platform === "darwin") {
-    mainWindow.setBackgroundColor("rgba(0, 0, 0, 0)");
+    mainWindow.setAlwaysOnTop(true, "screen-saver");
+    mainWindow.setWindowButtonVisibility(false);
+    mainWindow.setBackgroundColor("#00000000");
+    mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+    app.dock.hide();
+  } else {
+    mainWindow.setAlwaysOnTop(true, "normal");
   }
 
   // Load the UI file
