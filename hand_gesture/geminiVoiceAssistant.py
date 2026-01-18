@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from google import genai
 import os
 import time
-from hand_gesture.elevenLabsBridge import ElevenLabsBridge
+from elevenLabsBridge import ElevenLabsBridge
 from playsound import playsound
 
 
@@ -90,21 +90,18 @@ class GeminiVoiceAssistant:
 
     def run(self):
         """Main interaction loop."""
-        while True:
-            user_text = self.listen()
-            if user_text:
-                # Exit condition
-                if "exit" in user_text.lower() or "stop" in user_text.lower():
-                    print("Goodbye!")
-                    break
 
-                ai_response = self.generate_response(user_text)
-                self.speak(ai_response)
-                # 3. THE COOLDOWN LOGIC
-                # This block runs only after the bot has finished speaking.
-                print("\n--- Cooling down for 15 seconds... ---")
-                time.sleep(15)
-                print("--- Ready to listen again ---\n")
+        user_text = self.listen()
+        if user_text:
+            # Exit condition
+            if "exit" in user_text.lower() or "stop" in user_text.lower():
+                print("Goodbye!")
+                return
+
+            ai_response = self.generate_response(user_text)
+            self.speak(ai_response)
+
+            print("--- Ready to listen again ---\n")
 
 
 # --- 3. Usage ---

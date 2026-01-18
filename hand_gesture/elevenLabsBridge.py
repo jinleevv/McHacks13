@@ -8,13 +8,12 @@ class ElevenLabsBridge:
         api_key = os.getenv("ELEVEN_LABS_API_KEY")
         self.__client = ElevenLabs(api_key=api_key)
 
-    def generate_speech(self, text, voice_id="BFqnCBsd6RMkjVDRZzb"):
-        response = self.__client.text_to_speech.with_raw_response.convert(
+    def generate_speech(self, text, voice_id="ljX1ZrXuDIIRVcmiVSyR"):
+        audio_stream = self.__client.text_to_speech.convert(
             text=text,
             voice_id=voice_id
         )
-        # Access character cost from headers
-        char_cost = response.headers.get("x-character-count")
-        request_id = response.headers.get("request-id")
-        audio_data = response.data
+
+        audio_data = b"".join(audio_stream)
+
         return audio_data

@@ -8,7 +8,7 @@ import threading
 
 # Your custom modules
 from gestureEngine import GestureEngine
-from hand_gesture.geminiVoiceAssistant import GeminiVoiceAssistant
+from geminiVoiceAssistant import GeminiVoiceAssistant
 from mouseControl import MouseController
 from utils import Utils
 from flask import Flask, Response
@@ -116,6 +116,7 @@ def run_gesture_logic():
                     
                     if top_gesture == "ILoveYou":
                         voice_assistant.run()
+                        engine.latest_result = None
                         pass
                 fingers_up = engine.count_fingers_up(hand1)
 
