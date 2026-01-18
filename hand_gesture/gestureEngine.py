@@ -1,5 +1,6 @@
-import math
 import mediapipe as mp
+
+from utils import Utils
 
 class GestureEngine:
     def __init__(self, model_path):
@@ -28,8 +29,9 @@ class GestureEngine:
         """Checks if Thumb and Index finger are touching."""
         thumb_tip = landmarks[4]
         index_tip = landmarks[8]
-        dist = math.hypot(index_tip.x - thumb_tip.x, index_tip.y - thumb_tip.y)
-        return dist < 0.05
+
+        dist = Utils.calc_distance(index_tip, thumb_tip)
+        return dist < 0.03
 
     def count_fingers_up(self, landmarks):
         """Returns the number of fingers extended."""
