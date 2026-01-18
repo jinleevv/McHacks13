@@ -1,4 +1,5 @@
 import math
+import os
 import time
 import cv2
 import mediapipe as mp
@@ -102,12 +103,18 @@ def run_gesture_logic():
                 for hand_lms in landmarks:
                     for lm in hand_lms:
                         cv2.circle(frame, (int(lm.x * w), int(lm.y * h)), 5, (255, 0, 0), -1)
-            else:
+                
                 # draw status box
                 cv2.rectangle(frame, (0, 0), (w, 40), (0, 0, 0), -1)
                 cv2.putText(frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-
-                
+            else:
+                if engine.latest_result and engine.latest_result.gestures:
+                    # Get the top gesture (highest score)
+                    top_gesture = engine.latest_result.gestures[0][0].category_name
+                    
+                    if top_gesture == "ILoveYou":
+                        # AI logic here, make sure you only pass it once!
+                        pass                
                 fingers_up = engine.count_fingers_up(hand1)
 
                 # Key points
