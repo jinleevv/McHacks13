@@ -12,11 +12,17 @@ function createWindow() {
     fullscreen: true,
     alwaysOnTop: true,
     backgroundColor: "#00000000", // Fully transparent
+    hasShadow: false, // Remove shadow on macOS
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
     },
   });
+
+  // macOS specific - ensure transparency works
+  if (process.platform === "darwin") {
+    mainWindow.setBackgroundColor("rgba(0, 0, 0, 0)");
+  }
 
   // Load the UI file
   mainWindow.loadFile("index.html").then((r) => {});
@@ -44,6 +50,11 @@ function createWindow() {
     if (mainWindow) {
       mainWindow.setAlwaysOnTop(true, "normal");
     }
+  });
+
+  // Handle quit-app IPC from renderer
+  ipcMain.on("quit-app", () => {
+    app.quit();
   });
 
   // Restore alwaysOnTop if window loses focus due to background clicks
