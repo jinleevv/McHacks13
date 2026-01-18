@@ -62,15 +62,15 @@ def run_gesture_logic():
         if not success:
             continue
 
-        # 1. Pre-process
+        # Pre-process Image (Frame)
         frame = cv2.flip(frame, 1)
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
 
-        # 2. Async Recognition
+        # Process Image (Hand Recognition Model)
         engine.process_frame(int(time.time() * 1000), mp_image)
 
-        # 3. Logic Layer
+        # Handle Result
         landmarks = engine.get_landmarks()
         status_text = "Idle"
         h, w, _ = frame.shape
@@ -78,38 +78,23 @@ def run_gesture_logic():
         if landmarks:
             hand1 = landmarks[0]
             if len(landmarks) == 2:
-                
                 hand2 = landmarks[1]
-
-                # Check if BOTH hands are pinching
                 if engine.is_pinching(hand1) and engine.is_pinching(hand2):
                     status_text = "Dual Zoom Mode"
-                        
-                    # Calculate distance
                     x1, y1 = hand1[8].x * CAM_W, hand1[8].y * CAM_H
                     x2, y2 = hand2[8].x * CAM_W, hand2[8].y * CAM_H
                     hands_dist = math.hypot(x2 - x1, y2 - y1)
                     norm_dist = hands_dist / CAM_W
                         
-                    # Perform Zoom
                     zoom_result = mouse.perform_zoom(norm_dist)
                     if zoom_result: 
                         status_text = f"Dual: {zoom_result}"
-                    
                 else:
-                    # CRITICAL: If hands are up but NOT pinching, reset anchor!
                     mouse.zoom_anchor = None
                     status_text = "2 Hands (Open)"
-
-                # visualization for hand gesture
-                for hand_lms in landmarks:
-                    for lm in hand_lms:
-                        cv2.circle(frame, (int(lm.x * w), int(lm.y * h)), 5, (255, 0, 0), -1)
                 
-                # draw status box
-                cv2.rectangle(frame, (0, 0), (w, 40), (0, 0, 0), -1)
-                cv2.putText(frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-            else:
+            else: # most likely 1 hand
+                
                 if engine.latest_result and engine.latest_result.gestures:
                     # Get the top gesture (highest score)
                     top_gesture = engine.latest_result.gestures[0][0].category_name
@@ -118,56 +103,55 @@ def run_gesture_logic():
                         engine.latest_result = None
                     elif top_gesture == "Thumb_Down":
                         os._exit(0)
+
                 fingers_up = engine.count_fingers_up(hand1)
 
-                # Key points
-                index_x = hand1[8].x * CAM_W
-                index_y = hand1[8].y * CAM_W  # Note: check if this should be CAM_H or CAM_W (usually y * H)
-
-                thumb_tip = hand1[4]
+                #thumb_tip = hand1[4]
                 index_tip = hand1[8]
-                middle_tip = hand1[12]
+                #middle_tip = hand1[12]
 
-                # --- Cursor Mode ---
+                index_tip_x_scaled = index_tip.x * CAM_W
+                index_tip_y_scaled = index_tip.y * CAM_H
+
+                # Cursor Mode
                 if fingers_up <= 1:
-                    dist = Utils.calc_distance(index_tip, thumb_tip)
-
-                    # -------- PINCHING --------
-                    if dist < 0.03:
+                    if engine.is_pinching(hand1):
                         if mouse.pinch_start_time == 0:
                             mouse.pinch_start_time = time.time()
 
                         pinch_duration = time.time() - mouse.pinch_start_time
 
-                        # HOLD → Scroll
+                        # vertical scroll
                         if pinch_duration > 0.4:
                             status_text = "Click & Hold: Scrolling"
-
-                            current_y = index_tip.y * CAM_H  # 🔥 FIXED
-                            mouse.perform_scroll(current_y)
-
-                            cv2.circle(frame, (int(index_x), int(index_y)), 20, (255, 0, 0), 2)
-
+                            mouse.perform_scroll(index_tip_y_scaled)
+                            # Draw Scroll UI
+                            cv2.circle(frame, (int(index_tip_x_scaled), int(index_tip_y_scaled)), 20, (255, 0, 0), 2)
                         else:
+                            # building up to a scroll
                             status_text = "Pinching..."
 
-                    # -------- RELEASED --------
+                    # release pinch
                     else:
                         status_text = "Cursor Mode"
-                        mouse.move_cursor(index_x, index_y)
+                        mouse.move_cursor(index_tip_x_scaled, index_tip_y_scaled)
 
+                        # if was in a pinch previous frame
                         if mouse.pinch_start_time > 0:
                             pinch_duration = time.time() - mouse.pinch_start_time
 
-                            # Quick pinch → click
+                            # min click time threshold
+                            # if you make it too small may click accidentally
                             if pinch_duration <= 0.2:
                                 mouse.left_click()
-                                status_text = "Quick Click!"
+                                status_text = "Click"
 
                             mouse.pinch_start_time = 0
-                            mouse.prev_y = None  # reset scroll memory
+                            # reset scroll memory (if any)
+                            mouse.prev_y = None  
                             mouse.scroll_anchor = None
-                # --- Swipe Mode ---
+
+                # Swipe Mode
                 elif fingers_up >= 3:
                     hand_x = hand1[0].x * CAM_W
                     hand_y = hand1[0].y * CAM_H
@@ -176,17 +160,19 @@ def run_gesture_logic():
                         status_text = action
                     else:
                         status_text = "Swipe Mode"
-                
-                # --- Visualization ---
-                for lm in hand1:
-                    cv2.circle(frame, (int(lm.x * w), int(lm.y * h)), 5, (255, 0, 0), -1)
 
-        # 4. Draw UI
+
+        #UI
+            
+        # Draw hands
+        for hand_lms in landmarks:
+            for lm in hand_lms:
+                cv2.circle(frame, (int(lm.x * w), int(lm.y * h)), 5, (255, 0, 0), -1)
         cv2.rectangle(frame, (0, 0), (w, 40), (0, 0, 0), -1)
         cv2.putText(frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
         cv2.rectangle(frame, (MARGIN, MARGIN), (CAM_W - MARGIN, CAM_H - MARGIN), (255, 255, 255), 1)
 
-        # 5. Update Global Frame for Flask
+        # Global Frame for Flask
         with lock:
             output_frame = frame.copy()
 
