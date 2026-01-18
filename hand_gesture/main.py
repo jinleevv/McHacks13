@@ -8,6 +8,7 @@ import threading
 
 # Your custom modules
 from gestureEngine import GestureEngine
+from hand_gesture.geminiVoiceAssistant import GeminiVoiceAssistant
 from mouseControl import MouseController
 from utils import Utils
 from flask import Flask, Response
@@ -49,6 +50,7 @@ def run_gesture_logic():
     # Note: Ensure paths to .task files are correct relative to where you run this script
     engine = GestureEngine(model_path="./gesture_recognizer.task")
     mouse = MouseController(smooting_factor=SMOOTHING_FACTOR, margin=MARGIN, cam_w=CAM_W, cam_h=CAM_H, screen_w=SCREEN_W, screen_h=SCREEN_H, key_zoom_in=KEY_ZOOM_IN, key_zoom_out=KEY_ZOOM_OUT, key_swipe_left=KEY_SWIPE_LEFT, key_swipe_right=KEY_SWIPE_RIGHT)
+    voice_assistant = GeminiVoiceAssistant()
     cap = cv2.VideoCapture(0)
     cap.set(3, CAM_W)
     cap.set(4, CAM_H)
@@ -113,8 +115,8 @@ def run_gesture_logic():
                     top_gesture = engine.latest_result.gestures[0][0].category_name
                     
                     if top_gesture == "ILoveYou":
-                        # AI logic here, make sure you only pass it once!
-                        pass                
+                        voice_assistant.run()
+                        pass
                 fingers_up = engine.count_fingers_up(hand1)
 
                 # Key points

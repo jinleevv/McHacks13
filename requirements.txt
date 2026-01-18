@@ -3,3 +3,4 @@ mediapipe~=0.10.31
 PyAutoGUI~=0.9.54
 Flask~=3.1.2
 numpy~=2.2.6
+playsound==1.2.2
