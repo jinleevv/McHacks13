@@ -97,7 +97,8 @@ def main():
                 # swipe
                 elif fingers_up >= 3:
                     hand_x = landmarks[0].x * CAM_W
-                    action = mouse.perform_swipe(hand_x)
+                    hand_y = landmarks[0].y * CAM_H
+                    action = mouse.perform_swipe(hand_x,hand_y)
                     if action:
                         status_text = action
                     else:

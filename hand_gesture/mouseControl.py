@@ -59,7 +59,7 @@ class MouseController:
         if abs(delta) > 5:
             # multiplier for speed
             scroll_clicks = int(delta / 5) 
-            pyautogui.scroll(scroll_clicks * 2) 
+            pyautogui.scroll(scroll_clicks * 0.5) 
             self.prev_y = current_y
 
     def perform_zoom(self, current_dist):
@@ -87,7 +87,7 @@ class MouseController:
         
         return None
 
-    def perform_swipe(self, current_x):
+    def perform_swipe(self, current_x,current_y):
         """Triggers left/right desktop switch."""
         # Debounce swipes (don't swipe 10 times in 1 second)
         if time.time() - self.last_swipe_time < 1.0:
@@ -101,5 +101,12 @@ class MouseController:
             pyautogui.hotkey(*self.key_swipe_right)
             self.last_swipe_time = time.time()
             return "Swipe Right"
+
+        # Swipe UP (Mission Control / App Switcher)
+        elif current_y < self.cam_h * 0.2:
+            # On MacOS, Mission Control is usually 'ctrl', 'up'
+            pyautogui.hotkey('ctrl', 'up')
+            self.last_swipe_time = time.time()
+            return "Swipe Up (Mission Control)"
         
         return None

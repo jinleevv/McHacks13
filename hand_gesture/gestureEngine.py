@@ -7,7 +7,7 @@ class GestureEngine:
             base_options=mp.tasks.BaseOptions(model_asset_path=model_path),
             running_mode=mp.tasks.vision.RunningMode.LIVE_STREAM,
             result_callback=self.result_callback,
-            num_hands=1
+            num_hands=2
         )
         self.recognizer = mp.tasks.vision.GestureRecognizer.create_from_options(self.mp_options)
         self.latest_result = None
