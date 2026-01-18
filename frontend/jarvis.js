@@ -122,11 +122,6 @@ document.addEventListener("DOMContentLoaded", () => {
   mainBtn?.addEventListener("click", toggleMenu);
 
   const actions = {
-    create: () => {
-      console.log("Add mode activated");
-      openIntro();
-    },
-
     manage: () => {
       console.log("Manage mode activated");
       openIntro();
@@ -138,15 +133,9 @@ document.addEventListener("DOMContentLoaded", () => {
     },
   };
 
-  const customBtn = document.getElementById("customBtn");
   const mngBtn = document.getElementById("mngBtn");
   const infoBtn = document.getElementById("infoBtn");
   const exitBtn = document.getElementById("exitBtn");
-
-  customBtn?.addEventListener("click", () => {
-    actions.create();
-    toggleMenu();
-  });
 
   mngBtn?.addEventListener("click", () => {
     actions.manage();
@@ -159,7 +148,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   exitBtn?.addEventListener("click", () => {
-    window.close();
+    const { ipcRenderer } = require("electron");
+    ipcRenderer.send("quit-app");
   });
 
   document.addEventListener("keydown", (e) => {
