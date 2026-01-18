@@ -211,80 +211,8 @@ def video_feed():
 
 @app.route("/")
 def index():
-    return """
-    <html>
-        <head>
-            <title>Gesture Test Arena</title>
-            <style>
-                body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f0f0f0; }
-                .container { display: flex; flex-direction: column; align-items: center; gap: 20px; }
-                
-                /* Button Styling */
-                #test-btn { 
-                    padding: 20px 40px; 
-                    font-size: 20px; 
-                    cursor: pointer; 
-                    background-color: #007bff; 
-                    color: white; 
-                    border: none; 
-                    border-radius: 8px; 
-                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                    transition: transform 0.1s;
-                }
-                #test-btn:active { transform: scale(0.95); background-color: #0056b3; }
-
-                /* Scroll Box Styling */
-                #scroll-box { 
-                    width: 300px; 
-                    height: 200px; 
-                    overflow-y: scroll; 
-                    border: 3px solid #333; 
-                    padding: 10px; 
-                    text-align: left; 
-                    background: white; 
-                }
-                .scroll-item { padding: 10px; border-bottom: 1px solid #ddd; }
-            </style>
-        </head>
-        <body>
-            <h1>Gesture Control Test Arena</h1>
-            <p>Use your hand gestures to interact with the elements below.</p>
-            
-            <div class="container">
-                <img src="/video_feed" width="640" height="480" style="border: 3px solid #333; border-radius: 10px;">
-
-                <div style="display: flex; gap: 40px; margin-top: 20px;">
-                    
-                    <div>
-                        <h3>Test 1: Pinch to Click</h3>
-                        <button id="test-btn" onclick="alert('SUCCESS: Click Detected!')">
-                            🎯 Click Me
-                        </button>
-                    </div>
-
-                    <div>
-                        <h3>Test 2: Two-Finger Scroll</h3>
-                        <div id="scroll-box">
-                            <div class="scroll-item">1. Scroll Down...</div>
-                            <div class="scroll-item">2. Keep going...</div>
-                            <div class="scroll-item">3. Two fingers up/down</div>
-                            <div class="scroll-item">4. Testing Scroll...</div>
-                            <div class="scroll-item">5. Testing Scroll...</div>
-                            <div class="scroll-item">6. Middle of list</div>
-                            <div class="scroll-item">7. Testing Scroll...</div>
-                            <div class="scroll-item">8. Testing Scroll...</div>
-                            <div class="scroll-item">9. Almost there...</div>
-                            <div class="scroll-item">10. Bottom reached!</div>
-                            <div class="scroll-item">11. Extra padding</div>
-                            <div class="scroll-item">12. Extra padding</div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </body>
-    </html>
-    """
+    with open("index1.html", "r", encoding="utf-8") as f:
+        return f.read()
 
 
 if __name__ == "__main__":
