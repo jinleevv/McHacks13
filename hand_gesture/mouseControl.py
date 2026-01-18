@@ -24,6 +24,10 @@ class MouseController:
         self.key_zoom_out = key_zoom_out
         self.key_swipe_left = key_swipe_left
         self.key_swipe_right = key_swipe_right
+        self.pinch_start_time = 0
+        self.is_scrolling = False
+        self.last_scroll_y = 0
+        self.count = 0
 
         self.zoom_anchor = None
 
@@ -50,20 +54,17 @@ class MouseController:
         pyautogui.click(_pause=False)
 
     def perform_scroll(self, current_y):
-        """Scrolls based on vertical movement of fingers."""
         if self.prev_y is None:
             self.prev_y = current_y
             return
 
-        # scroll direction
-        delta = self.prev_y - current_y 
-        
-        # only scroll if movement is significant
-        if abs(delta) > 5:
-            # multiplier for speed
-            scroll_clicks = int(delta / 5) 
-            pyautogui.scroll(scroll_clicks * 0.5) 
+        delta = self.prev_y - current_y
+
+        if abs(delta) > 5:  # pixels, not normalized
+            scroll_clicks = int(delta / 8)
+            pyautogui.scroll(scroll_clicks)
             self.prev_y = current_y
+
 
     def perform_zoom(self, current_dist):
         """
