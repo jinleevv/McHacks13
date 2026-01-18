@@ -1,6 +1,7 @@
 ### Quick Start Guide
 1. Install all the dependencies:
 - `pip install -r requirements.txt`
+2. Create `.env` file that can store Gemini API key and ElevenLabs API Key inside the `./backend/` directory
 2. Navigate to the backend and start the server:
 - `cd backend/`
 - `python main.py`
