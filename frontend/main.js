@@ -1,37 +1,70 @@
-const { app, BrowserWindow } = require('electron');
-const path = require('path');
+const { app, BrowserWindow, ipcMain } = require("electron");
+const path = require("path");
 
 // Global reference to prevent garbage collection
 let mainWindow;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1000,
-    height: 700,
     title: "Smart Gesture Camera",
-    backgroundColor: '#1e1e1e', // Dark mode background
+    transparent: true,
+    frame: false,
+    fullscreen: true,
+    alwaysOnTop: true,
+    backgroundColor: "#00000000", // Fully transparent
     webPreferences: {
-      nodeIntegration: false, // Security best practice
-      contextIsolation: true, // Security best practice
-    }
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
   });
 
   // Load the UI file
-  mainWindow.loadFile('index.html').then(r => {});
+  mainWindow.loadFile("index.html").then((r) => {});
 
   // remove the default menu bar (File, Edit, etc.) for a cleaner app look
   mainWindow.setMenuBarVisibility(false);
+
+  // Default to allowing background click-through
+  mainWindow.setIgnoreMouseEvents(true, { forward: true });
+
+  // Handle mouse enter/leave events from renderer to re-enable UI clicks
+  ipcMain.on("set-ignore-mouse-events", (event, ignore) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (win) {
+      win.setIgnoreMouseEvents(ignore, { forward: true });
+      // Keep window on top even when passing clicks through
+      if (ignore) {
+        win.setAlwaysOnTop(true, "normal");
+      }
+    }
+  });
+
+  // Handle restore-on-top IPC from renderer
+  ipcMain.on("restore-on-top", () => {
+    if (mainWindow) {
+      mainWindow.setAlwaysOnTop(true, "normal");
+    }
+  });
+
+  // Restore alwaysOnTop if window loses focus due to background clicks
+  mainWindow.on("blur", () => {
+    setTimeout(() => {
+      if (mainWindow) {
+        mainWindow.setAlwaysOnTop(true, "normal");
+      }
+    }, 50);
+  });
 }
 
 // App Lifecycle
 app.whenReady().then(() => {
   createWindow();
 
-  app.on('activate', () => {
+  app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") app.quit();
 });
