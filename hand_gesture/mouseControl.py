@@ -5,7 +5,7 @@ import pyautogui
 from utils import Utils
 
 class MouseController:
-    def __init__(self, smooting_factor, margin, cam_w, cam_h, screen_w, screen_h, key_zoom_in, key_swipe_left, key_swipe_right):
+    def __init__(self, smooting_factor, margin, cam_w, cam_h, screen_w, screen_h, key_zoom_in, key_zoom_out, key_swipe_left, key_swipe_right):
         self.cursor_history = collections.deque(maxlen=smooting_factor)
         self.last_swipe_time = 0
         self.last_zoom_time = 0
@@ -21,8 +21,11 @@ class MouseController:
         self.screen_h = screen_h
 
         self.key_zoom_in = key_zoom_in
+        self.key_zoom_out = key_zoom_out
         self.key_swipe_left = key_swipe_left
         self.key_swipe_right = key_swipe_right
+
+        self.zoom_anchor = None
 
     def move_cursor(self, x, y):
         """Smooths coordinates and moves the mouse."""
@@ -63,31 +66,44 @@ class MouseController:
             self.prev_y = current_y
 
     def perform_zoom(self, current_dist):
-        """Zooms based on fingers spreading (in) or closing (out)."""
-        if self.prev_dist is None:
-            self.prev_dist = current_dist
-            return
+        """
+        Anchor-Based Zoom (Virtual Notches).
+        - Establishes a start point (anchor) when you first pinch.
+        - Fires a zoom key ONLY when you move a specific 'step' distance from the anchor.
+        - Updates the anchor after every step to keep it synced.
+        """
+        # 1. ESTABLISH ANCHOR
+        # If this is the first frame of a pinch, save the distance as zero-point.
+        if self.zoom_anchor is None:
+            self.zoom_anchor = current_dist
+            return None
 
-        # Debounce zoom to prevent spamming keys
-        if time.time() - self.last_zoom_time < 0.2:
-            return
+        # 2. CALCULATE DEVIATION FROM ANCHOR
+        diff = current_dist - self.zoom_anchor
 
-        delta = current_dist - self.prev_dist
+        # 3. DEFINE STEP SIZE (Sensitivity)
+        # 0.02 means you have to move hands by 2% of screen width to trigger one zoom click.
+        # Lower = Faster/More Sensitive. Higher = Slower/More Stable.
+        STEP_SIZE = 0.026
 
-        if delta > 0.04: # Spreading -> Zoom In
+        if diff > STEP_SIZE:
             pyautogui.hotkey(*self.key_zoom_in)
-            self.prev_dist = current_dist
-            self.last_zoom_time = time.time()
-            return "Zoom In"
-        elif delta < -0.04: # Pinching -> Zoom Out
-            pyautogui.hotkey(*self.key_zoom_in)
-            self.prev_dist = current_dist
-            self.last_zoom_time = time.time()
+            print(f"Zoom Out (Dist: {current_dist:.3f})")
+            
+            self.zoom_anchor += STEP_SIZE
             return "Zoom Out"
-        
+
+        elif diff < -STEP_SIZE:
+            pyautogui.hotkey(*self.key_zoom_out)
+            print(f"Zoom In (Dist: {current_dist:.3f})")
+            
+            # Slide the anchor backward
+            self.zoom_anchor -= STEP_SIZE
+            return "Zoom In"
+
         return None
 
-    def perform_swipe(self, current_x,current_y):
+    def perform_swipe(self, current_x, current_y):
         """Triggers left/right desktop switch."""
         # Debounce swipes (don't swipe 10 times in 1 second)
         if time.time() - self.last_swipe_time < 1.0:
