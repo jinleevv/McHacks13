@@ -9,7 +9,8 @@
   },
   "author": "Tyler Li",
   "license": "MIT",
-    "devDependencies": {
-      "electron": "^40.0.0"
-    }
+  "devDependencies": {
+    "electron": "^40.0.0"
+  },
+  "dependencies": {}
 }

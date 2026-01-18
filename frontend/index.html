@@ -1,10 +1,190 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<img src="http://localhost:5000/video_feed" style="width: 100%; height: 100%; object-fit: cover;">
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Jarvis</title>
+
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: Arial, sans-serif;
+        overflow: hidden;
+        background: transparent;
+      }
+
+      body {
+        -webkit-app-region: no-drag;
+        pointer-events: none;
+      }
+
+      button,
+      .slide-container,
+      .main-btn,
+      .action-btns {
+        pointer-events: auto;
+      }
+
+      .slide-container {
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        width: 300px;
+        max-width: 90%;
+        height: 250px;
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        overflow: hidden;
+        z-index: 9998;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .slide {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.5s ease;
+        text-align: center;
+      }
+
+      .slide.active {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .slide.exit-left {
+        opacity: 0;
+        transform: translateX(-100%);
+      }
+
+      h1 {
+        margin-bottom: 10px;
+        font-size: 1.5rem;
+      }
+
+      p {
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+      }
+
+      .controls {
+        position: absolute;
+        bottom: 10px;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .controls button {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        backdrop-filter: blur(5px);
+        font-size: 12px;
+      }
+
+      .controls button:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .main-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #42c4a1;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        font-size: 30px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+      }
+
+      .action-btns {
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s ease;
+        z-index: 9999;
+      }
+
+      .action-btns.show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .action-btns button {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        background-color: #2196f3;
+        color: white;
+        cursor: pointer;
+        font-size: 18px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="slide-container" id="slide-container">
+      <div class="slide active">
+        <h1>Welcome to HandlR</h1>
+        <p>Start your very own<br />hands-free browser control experience</p>
+      </div>
+
+      <div class="slide">
+        <h1>Features</h1>
+        <p>Control your browser with gestures.<br />No mouse needed!</p>
+      </div>
+
+      <div class="slide">
+        <h1>Get Started</h1>
+        <p>Click “Next” to begin your hands-free journey.</p>
+      </div>
+
+      <div class="controls">
+        <button id="skipBtn">Skip Intro</button>
+        <button id="nextBtn">Next</button>
+      </div>
+    </div>
+
+    <!-- Floating buttons -->
+    <button class="main-btn" id="mainBtn">+</button>
+
+    <div class="action-btns" id="actionBtns">
+      <button id="customBtn">custom</button>
+      <button id="mngBtn">manage</button>
+      <button id="infoBtn">info</button>
+      <button id="exitBtn" style="background-color: #f44336">exit</button>
+    </div>
+
+    <script src="jarvis.js"></script>
+  </body>
 </html>
