@@ -1,3 +1,4 @@
+import math
 import time
 import cv2
 import mediapipe as mp
@@ -46,18 +47,7 @@ def run_gesture_logic():
     # Initialize Logic Components
     # Note: Ensure paths to .task files are correct relative to where you run this script
     engine = GestureEngine(model_path="./gesture_recognizer.task")
-    mouse = MouseController(
-        smooting_factor=SMOOTHING_FACTOR,
-        margin=MARGIN,
-        cam_w=CAM_W,
-        cam_h=CAM_H,
-        screen_w=SCREEN_W,
-        screen_h=SCREEN_H,
-        key_zoom_in=KEY_ZOOM_IN,
-        key_swipe_left=KEY_SWIPE_LEFT,
-        key_swipe_right=KEY_SWIPE_RIGHT
-    )
-
+    mouse = MouseController(smooting_factor=SMOOTHING_FACTOR, margin=MARGIN, cam_w=CAM_W, cam_h=CAM_H, screen_w=SCREEN_W, screen_h=SCREEN_H, key_zoom_in=KEY_ZOOM_IN, key_zoom_out=KEY_ZOOM_OUT, key_swipe_left=KEY_SWIPE_LEFT, key_swipe_right=KEY_SWIPE_RIGHT)
     cap = cv2.VideoCapture(0)
     cap.set(3, CAM_W)
     cap.set(4, CAM_H)
@@ -83,68 +73,102 @@ def run_gesture_logic():
         h, w, _ = frame.shape
 
         if landmarks:
-            fingers_up = engine.count_fingers_up(landmarks)
 
-            # Key points
-            index_x = landmarks[8].x * CAM_W
-            index_y = landmarks[8].y * CAM_W  # Note: check if this should be CAM_H or CAM_W (usually y * H)
+            if len(landmarks) == 2:
+                hand1 = landmarks[0]
+                hand2 = landmarks[1]
 
-            thumb_tip = landmarks[4]
-            index_tip = landmarks[8]
-            middle_tip = landmarks[12]
-            # --- Cursor Mode ---
-            if fingers_up <= 1:
-                dist = Utils.calc_distance(index_tip, thumb_tip)
-
-                # -------- PINCHING --------
-                if dist < 0.05:
-                    if mouse.pinch_start_time == 0:
-                        mouse.pinch_start_time = time.time()
-
-                    pinch_duration = time.time() - mouse.pinch_start_time
-
-                    # HOLD → Scroll
-                    if pinch_duration > 0.5:
-                        status_text = "Click & Hold: Scrolling"
-
-                        current_y = index_tip.y * CAM_H  # 🔥 FIXED
-                        mouse.perform_scroll(current_y)
-
-                        cv2.circle(frame, (int(index_x), int(index_y)), 20, (255, 0, 0), 2)
-
-                    else:
-                        status_text = "Pinching..."
-
-                # -------- RELEASED --------
+                # Check if BOTH hands are pinching
+                if engine.is_pinching(hand1) and engine.is_pinching(hand2):
+                    status_text = "Dual Zoom Mode"
+                        
+                    # Calculate distance
+                    x1, y1 = hand1[8].x * CAM_W, hand1[8].y * CAM_H
+                    x2, y2 = hand2[8].x * CAM_W, hand2[8].y * CAM_H
+                    hands_dist = math.hypot(x2 - x1, y2 - y1)
+                    norm_dist = hands_dist / CAM_W
+                        
+                    # Perform Zoom
+                    zoom_result = mouse.perform_zoom(norm_dist)
+                    if zoom_result: 
+                        status_text = f"Dual: {zoom_result}"
+                    
                 else:
-                    status_text = "Cursor Mode"
-                    mouse.move_cursor(index_x, index_y)
+                    # CRITICAL: If hands are up but NOT pinching, reset anchor!
+                    mouse.zoom_anchor = None
+                    status_text = "2 Hands (Open)"
 
-                    if mouse.pinch_start_time > 0:
+                # visualization for hand gesture
+                for hand_lms in landmarks:
+                    for lm in hand_lms:
+                        cv2.circle(frame, (int(lm.x * w), int(lm.y * h)), 5, (255, 0, 0), -1)
+            else:
+                # draw status box
+                cv2.rectangle(frame, (0, 0), (w, 40), (0, 0, 0), -1)
+                cv2.putText(frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+
+                landmarks = landmarks[0]
+                fingers_up = engine.count_fingers_up(landmarks)
+
+                # Key points
+                index_x = landmarks[8].x * CAM_W
+                index_y = landmarks[8].y * CAM_W  # Note: check if this should be CAM_H or CAM_W (usually y * H)
+
+                thumb_tip = landmarks[4]
+                index_tip = landmarks[8]
+                middle_tip = landmarks[12]
+
+                # --- Cursor Mode ---
+                if fingers_up <= 1:
+                    dist = Utils.calc_distance(index_tip, thumb_tip)
+
+                    # -------- PINCHING --------
+                    if dist < 0.05:
+                        if mouse.pinch_start_time == 0:
+                            mouse.pinch_start_time = time.time()
+
                         pinch_duration = time.time() - mouse.pinch_start_time
 
-                        # Quick pinch → click
-                        if pinch_duration <= 0.5:
-                            mouse.left_click()
-                            status_text = "Quick Click!"
+                        # HOLD → Scroll
+                        if pinch_duration > 0.5:
+                            status_text = "Click & Hold: Scrolling"
 
-                        mouse.pinch_start_time = 0
-                        mouse.prev_y = None  # reset scroll memory
+                            current_y = index_tip.y * CAM_H  # 🔥 FIXED
+                            mouse.perform_scroll(current_y)
 
+                            cv2.circle(frame, (int(index_x), int(index_y)), 20, (255, 0, 0), 2)
 
-            # --- Swipe Mode ---
-            elif fingers_up >= 3:
-                hand_x = landmarks[0].x * CAM_W
-                hand_y = landmarks[0].y * CAM_H
-                action = mouse.perform_swipe(hand_x, hand_y)
-                if action:
-                    status_text = action
-                else:
-                    status_text = "Swipe Mode"
+                        else:
+                            status_text = "Pinching..."
 
-            # --- Visualization ---
-            for lm in landmarks:
-                cv2.circle(frame, (int(lm.x * w), int(lm.y * h)), 5, (255, 0, 0), -1)
+                    # -------- RELEASED --------
+                    else:
+                        status_text = "Cursor Mode"
+                        mouse.move_cursor(index_x, index_y)
+
+                        if mouse.pinch_start_time > 0:
+                            pinch_duration = time.time() - mouse.pinch_start_time
+
+                            # Quick pinch → click
+                            if pinch_duration <= 0.5:
+                                mouse.left_click()
+                                status_text = "Quick Click!"
+
+                            mouse.pinch_start_time = 0
+                            mouse.prev_y = None  # reset scroll memory
+                # --- Swipe Mode ---
+                elif fingers_up >= 3:
+                    hand_x = landmarks[0].x * CAM_W
+                    hand_y = landmarks[0].y * CAM_H
+                    action = mouse.perform_swipe(hand_x, hand_y)
+                    if action:
+                        status_text = action
+                    else:
+                        status_text = "Swipe Mode"
+                
+                # --- Visualization ---
+                for lm in landmarks:
+                    cv2.circle(frame, (int(lm.x * w), int(lm.y * h)), 5, (255, 0, 0), -1)
 
         # 4. Draw UI
         cv2.rectangle(frame, (0, 0), (w, 40), (0, 0, 0), -1)
@@ -269,4 +293,4 @@ if __name__ == "__main__":
     t.start()
 
     # Start Flask Server
-    app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)
+    app.run(host="0.0.0.0", port=5174, debug=False, use_reloader=False)

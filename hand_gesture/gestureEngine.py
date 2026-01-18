@@ -1,3 +1,4 @@
+import math
 import mediapipe as mp
 
 class GestureEngine:
@@ -20,8 +21,15 @@ class GestureEngine:
 
     def get_landmarks(self):
         if self.latest_result and self.latest_result.hand_landmarks:
-            return self.latest_result.hand_landmarks[0]
-        return None
+            return self.latest_result.hand_landmarks
+        return []
+    
+    def is_pinching(self, landmarks):
+        """Checks if Thumb and Index finger are touching."""
+        thumb_tip = landmarks[4]
+        index_tip = landmarks[8]
+        dist = math.hypot(index_tip.x - thumb_tip.x, index_tip.y - thumb_tip.y)
+        return dist < 0.05
 
     def count_fingers_up(self, landmarks):
         """Returns the number of fingers extended."""
