@@ -123,14 +123,14 @@ def run_gesture_logic():
                     dist = Utils.calc_distance(index_tip, thumb_tip)
 
                     # -------- PINCHING --------
-                    if dist < 0.05:
+                    if dist < 0.03:
                         if mouse.pinch_start_time == 0:
                             mouse.pinch_start_time = time.time()
 
                         pinch_duration = time.time() - mouse.pinch_start_time
 
                         # HOLD → Scroll
-                        if pinch_duration > 0.2:
+                        if pinch_duration > 0.4:
                             status_text = "Click & Hold: Scrolling"
 
                             current_y = index_tip.y * CAM_H  # 🔥 FIXED
