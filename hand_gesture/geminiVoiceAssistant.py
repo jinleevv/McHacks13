@@ -8,7 +8,7 @@ from playsound import playsound
 
 
 class GeminiVoiceAssistant:
-    def __init__(self, gemini_key=None, model_name="gemini-2.0-flash"):
+    def __init__(self, gemini_key=None, model_name="gemini-flash-latest"):
         load_dotenv()
 
         # Setup Gemini
@@ -26,6 +26,8 @@ class GeminiVoiceAssistant:
         # Setup Text-to-Speech Bridge
         print("Connecting to ElevenLabs...")
         self.tts_bridge = ElevenLabsBridge()
+
+        self.sys_instruct = "Respond in plain conversational text ONLY. No markdown, no bolding (**), no bullet points. Use full sentences. This is for text-to-speech."
 
     def listen(self):
         """Captures audio from the microphone and returns text."""
@@ -98,7 +100,8 @@ class GeminiVoiceAssistant:
                 print("Goodbye!")
                 return
 
-            ai_response = self.generate_response(user_text)
+            ai_response = self.generate_response([self.sys_instruct, user_text])
+            #print(ai_response)
             self.speak(ai_response)
 
             print("--- Ready to listen again ---\n")
