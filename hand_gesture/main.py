@@ -92,28 +92,45 @@ def run_gesture_logic():
             thumb_tip = landmarks[4]
             index_tip = landmarks[8]
             middle_tip = landmarks[12]
-
             # --- Cursor Mode ---
             if fingers_up <= 1:
-                status_text = "Cursor Mode"
-                mouse.move_cursor(index_x, index_y)
-
                 dist = Utils.calc_distance(index_tip, thumb_tip)
+
+                # -------- PINCHING --------
                 if dist < 0.05:
-                    mouse.left_click()
-                    cv2.circle(frame, (int(index_x), int(index_y)), 15, (0, 255, 0), -1)
+                    if mouse.pinch_start_time == 0:
+                        mouse.pinch_start_time = time.time()
 
-            # --- Scroll & Zoom Mode ---
-            elif fingers_up == 2:
-                im_dist = Utils.calc_distance(index_tip, middle_tip)
-                zoom_action = mouse.perform_zoom(im_dist)
+                    pinch_duration = time.time() - mouse.pinch_start_time
 
-                if zoom_action:
-                    status_text = zoom_action
+                    # HOLD → Scroll
+                    if pinch_duration > 0.5:
+                        status_text = "Click & Hold: Scrolling"
+
+                        current_y = index_tip.y * CAM_H  # 🔥 FIXED
+                        mouse.perform_scroll(current_y)
+
+                        cv2.circle(frame, (int(index_x), int(index_y)), 20, (255, 0, 0), 2)
+
+                    else:
+                        status_text = "Pinching..."
+
+                # -------- RELEASED --------
                 else:
-                    avg_y = (index_tip.y + middle_tip.y) / 2 * CAM_H
-                    mouse.perform_scroll(avg_y)
-                    status_text = "Scroll Mode"
+                    status_text = "Cursor Mode"
+                    mouse.move_cursor(index_x, index_y)
+
+                    if mouse.pinch_start_time > 0:
+                        pinch_duration = time.time() - mouse.pinch_start_time
+
+                        # Quick pinch → click
+                        if pinch_duration <= 0.5:
+                            mouse.left_click()
+                            status_text = "Quick Click!"
+
+                        mouse.pinch_start_time = 0
+                        mouse.prev_y = None  # reset scroll memory
+
 
             # --- Swipe Mode ---
             elif fingers_up >= 3:
