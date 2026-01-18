@@ -165,15 +165,10 @@ def run_gesture_logic():
                         status_text = action
                     else:
                         status_text = "Swipe Mode"
-
-            thumb_tip = landmarks[4]
-            index_tip = landmarks[8]
-            middle_tip = landmarks[12]
                 
-
-            # --- Visualization ---
-            for lm in landmarks:
-                cv2.circle(frame, (int(lm.x * w), int(lm.y * h)), 5, (255, 0, 0), -1)
+                # --- Visualization ---
+                for lm in landmarks:
+                    cv2.circle(frame, (int(lm.x * w), int(lm.y * h)), 5, (255, 0, 0), -1)
 
         # 4. Draw UI
         cv2.rectangle(frame, (0, 0), (w, 40), (0, 0, 0), -1)
