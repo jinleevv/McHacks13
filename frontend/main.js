@@ -6,17 +6,17 @@ let mainWindow;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    title: "Smart Gesture Camera",
+    title: "Jarvis",
     width: 1200,
     height: 800,
-    transparent: false,
+    // transparent: false,
     frame: true,
-    hasShadow: false,
+    // hasShadow: false,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
     },
-    alwaysOnTop: false,
+    // alwaysOnTop: false,
     backgroundColor: "#1a1a1a",
   });
 
@@ -32,13 +32,13 @@ function createWindow() {
   });
 
   // Restore alwaysOnTop if window loses focus due to background clicks
-  mainWindow.on("blur", () => {
-    setTimeout(() => {
-      if (mainWindow) {
-        mainWindow.setAlwaysOnTop(true, "normal");
-      }
-    }, 50);
-  });
+  // mainWindow.on("blur", () => {
+  //   setTimeout(() => {
+  //     if (mainWindow) {
+  //       mainWindow.setAlwaysOnTop(true, "normal");
+  //     }
+  //   }, 50);
+  // });
 }
 
 // App Lifecycle

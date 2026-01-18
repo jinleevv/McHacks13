@@ -4,6 +4,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const slides = document.querySelectorAll(".slide");
   const nextBtn = document.getElementById("nextBtn");
   const prevBtn = document.getElementById("prevBtn");
+  // const voiceBtn = document.getElementById("voice");
+  // const voiceIcon = document.querySelector(".voice img");
+
+  // let listening = false;
+
+  // voiceBtn?.addEventListener("click", () => {
+  //   listening = !listening;
+
+  //   if (listening) {
+  //     voiceBtn.classList.add("active");
+  //     voiceIcon.src = "./icons/pause.png";
+  //   } else {
+  //     voiceBtn.classList.remove("active");
+  //     voiceIcon.src = "./icons/mic.png";
+  //   }
+  // });
 
   let currentSlide = 0;
 

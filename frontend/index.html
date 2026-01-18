@@ -16,8 +16,15 @@
       }
 
       body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .main-div {
+        background-color: aliceblue;
         pointer-events: auto;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
         position: relative;
@@ -26,6 +33,7 @@
       .slide-container {
         background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
         position: fixed;
+        opacity: 0.75;
         bottom: 80px;
         right: 20px;
         width: 300px;
@@ -188,97 +196,149 @@
       }
       .video-feed {
         position: absolute;
-        width: 100%;
-        height: 100%;
+        height: 80%;
         object-fit: cover;
         z-index: 1;
+      }
+      .voice {
+        position: fixed;
+        width: 100px;
+        height: 100px;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10000;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .voice img {
+        width: 55%;
+        height: 55%;
+        z-index: 2;
+      }
+
+      .voice-ring {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border: 3px solid #42c4a1;
+        border-radius: 50%;
+        opacity: 0;
+        transform: scale(1);
+      }
+
+      .voice.active .voice-ring {
+        animation: pulse-ring 1.2s infinite ease-out;
+        opacity: 1;
+      }
+
+      @keyframes pulse-ring {
+        0% {
+          transform: scale(1);
+          opacity: 0.9;
+        }
+
+        100% {
+          transform: scale(1.5);
+          opacity: 0;
+        }
       }
     </style>
   </head>
 
   <body>
-    <div
-      class="logo"
-      style="
-        position: fixed;
-        top: 10px;
-        height: 60px;
-        z-index: 10000;
-        padding: 15px 20px;
-      "
-    >
-      <img src="./icons/jarv.png" alt="" />
-    </div>
-    <img
-      class="video-feed"
-      src="http://localhost:5174/video_feed"
-      alt="Video Feed"
-      style="
-        width: 600px;
-        height: 450px;
-        top: 130px;
-        border-radius: 20px;
-        position: fixed;
-      "
-    />
-    <div class="slide-container" id="slide-container">
-      <div class="slide active">
-        <h2>Meet Jarvis</h2>
-        <p>Your personal hands-free browser assistant</p>
-        <div class="gesture-container">
-          <div class="gesture-item">
-            <img src="./icons/click.png" alt="Click" />
-            <span>Pinch to Click</span>
+    <div class="main-div">
+      <div
+        class="logo"
+        style="
+          position: fixed;
+          top: 10px;
+          height: 60px;
+          z-index: 10000;
+          padding: 15px 20px;
+        "
+      >
+        <img src="./icons/jarv.png" alt="" />
+      </div>
+      <img
+        class="video-feed"
+        src="http://localhost:5174/video_feed"
+        alt="Video Feed"
+        style="
+          width: 560px;
+          height: 380px;
+          top: 130px;
+          border-radius: 20px;
+          position: fixed;
+        "
+      />
+      <div class="slide-container" id="slide-container">
+        <div class="slide active">
+          <h2>Meet Jarvis</h2>
+          <p>Your personal hands-free browser assistant</p>
+          <div class="gesture-container">
+            <div class="gesture-item">
+              <img src="./icons/click.png" alt="Click" />
+              <span>Pinch to Click</span>
+            </div>
+            <div class="gesture-item">
+              <img src="./icons/up_down.png" alt="Scroll" />
+              <span>Hold & Move to Scroll</span>
+            </div>
           </div>
+        </div>
+
+        <!-- Zoom in, Zoom out -->
+        <div class="slide">
+          <h3>To Zoom in and Zoom out</h3>
           <div class="gesture-item">
-            <img src="./icons/up_down.png" alt="Scroll" />
-            <span>Hold & Move to Scroll</span>
+            <img src="./icons/zoom.png" alt="Click" />
+            <span
+              >Pinch fingers on both hands.<br />
+              And move your hands inwards/outwards.</span
+            >
           </div>
         </div>
-      </div>
 
-      <!-- Zoom in, Zoom out -->
-      <div class="slide">
-        <h3>To Zoom in and Zoom out</h3>
-        <div class="gesture-item">
-          <img src="./icons/zoom.png" alt="Click" />
-          <span
-            >Pinch fingers on both hands.<br />
-            And move your hands inwards/outwards.</span
-          >
+        <!-- Flip through windows -->
+        <div class="slide">
+          <h3>Get across different pages</h3>
+          <div class="gesture-item">
+            <img src="./icons/slide.png" alt="Click" />
+            <span
+              >Open your palm towards the camera<br />
+              and swipe left and right.</span
+            >
+          </div>
+        </div>
+
+        <div class="controls">
+          <button id="prevBtn">Previous</button>
+          <button id="nextBtn">Next</button>
         </div>
       </div>
 
-      <!-- Flip through windows -->
-      <div class="slide">
-        <h3>Get across different pages</h3>
-        <div class="gesture-item">
-          <img src="./icons/slide.png" alt="Click" />
-          <span
-            >Open your palm towards the camera<br />
-            and swipe left and right.</span
-          >
-        </div>
+      <!-- Floating buttons -->
+      <button class="main-btn" id="mainBtn">+</button>
+
+      <div class="action-btns" id="actionBtns">
+        <!-- <button id="mngBtn">manage</button> -->
+        <button id="infoBtn">
+          <img src="./icons/info.png" alt="Info" />
+        </button>
+        <button id="exitBtn">
+          <img src="./icons/exit.png" alt="Exit" />
+        </button>
       </div>
 
-      <div class="controls">
-        <button id="prevBtn">Previous</button>
-        <button id="nextBtn">Next</button>
+      <!-- <div class="voice" id="voice">
+        <div class="voice-ring"></div>
+        <img id="voiceIcon" src="./icons/mic.png" alt="Voice Command" />
       </div>
-    </div>
-
-    <!-- Floating buttons -->
-    <button class="main-btn" id="mainBtn">+</button>
-
-    <div class="action-btns" id="actionBtns">
-      <!-- <button id="mngBtn">manage</button> -->
-      <button id="infoBtn">
-        <img src="./icons/info.png" alt="Info" />
-      </button>
-      <button id="exitBtn">
-        <img src="./icons/exit.png" alt="Exit" />
-      </button>
-    </div>
+    </div> -->
 
     <script src="jarvis.js"></script>
   </body>
